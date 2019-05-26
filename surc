@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+[ -z "${DEBUG}" ] || set -ex
+
+ANYRC_ENV='su'
+
+init() {
+  SU_USER="${ARGS[@]:$#-1:1}"
+  #while [[ -n "${ARGS[@]}" ]]; do
+  #  case $1 in
+  #    -b | -c | -D | -E | -e | -F | -I | -i | -L | -l | -m | -O | -o | -p | -Q | -R | -S | -W | -w )
+  #      SSH_OPTS="${SSH_OPTS} $1 $2"; shift ;;
+  #    -* )
+  #      SSH_OPTS="${SSH_OPTS} $1" ;;
+  #    *)
+  #      if [ -z "${SSH_REMOTE}" ]; then
+  #       SSH_REMOTE="$1"
+  #      else
+  #        local SEMICOLON=$([[ "$@" = *[![:space:]]* ]] && echo '; ')
+  #        CMDARG="$@${SEMICOLON} exit"
+  #        return;
+  #      fi
+  #      ;;
+  #  esac
+  #  shift
+  #done
+  #if [ -z ${SSH_REMOTE} ]; then
+  #  ssh ${SSH_OPTS}; exit 1;
+  #fi
+}
+
+mk_tmp_dir() {
+  TMP_DIR="$(mktemp -d)"
+}
+
+transfer() {
+  cp "${ANYRC_DANYRC}" "${TMP_DIR}/${DANYRC_NAME}"
+  cp -r "${ANYRC_DANYRCD}" "${TMP_DIR}/${DANYRCD_NAME}"
+
+  # Transfer *rc
+  local CMD_DIR="$(abs_dirname $0)"
+  for cmd in "${ANYRC_CMD}" "${ANYRC_CMDS[@]}"; do
+    if [ -f "${CMD_DIR}/${cmd}" ]; then
+      cp "${CMD_DIR}/${cmd}" "${TMP_DIR}/${cmd}"
+    fi
+  done
+
+  chmod -R 777 "${TMP_DIR}"
+}
+
+connect() {
+  sudo -s -u "${SU_USER}" bash -c "\
+      export DANYRC_NAME=\"${DANYRC_NAME}\" && \
+      export DANYRCD_NAME=\"${DANYRCD_NAME}\" && \
+      export ANYRC_ROOT=\"${TMP_DIR}\" && \
+      export ANYRC_DANYRC=\"\${ANYRC_ROOT}/\${DANYRC_NAME}\" && \
+      export ANYRC_DANYRCD=\"\${ANYRC_ROOT}/\${DANYRCD_NAME}\" && \
+      export ANYRC_HOME=\"\${ANYRC_DANYRCD}\" && \
+      export PATH=\"\${ANYRC_ROOT}:\${PATH}\" && \
+      trap \"rm -rf \${ANYRC_ROOT}/*; exit\" 0 && \
+      mkdir -p \${ANYRC_DANYRCD} && \
+      source \${ANYRC_DANYRC}
+      [ \"\${SHELL##*/}\" = 'bash' ] \
+        && bash --rcfile \${ANYRC_DANYRC} \
+        || \${SHELL}"
+  rm -rf "${TMP_DIR}" # FIXME
+}
+
+source anyrc

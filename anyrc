@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+
+# Const vals
+DANYRC_NAME='.anyrc'
+DANYRCD_NAME='.anyrc.d'
+
+ANYRC_CMD='anyrc'
+ANYRC_CMD_SSH='sshrc'
+ANYRC_CMD_DOCKER='dockerrc'
+ANYRC_CMD_K8S='kubectlrc'
+ANYRC_CMD_SU='surc'
+
+ANYRC_CMDS=( \
+  "${ANYRC_CMD_SSH}" \
+  "${ANYRC_CMD_DOCKER}" \
+  "${ANYRC_CMD_K8S}" \
+  "${ANYRC_CMD_SU}")
+
+
+
+# Funcs
+set_danyrc() {
+  # .anyrc on local
+  if [ -z "${ANYRC_DANYRC}" ]; then
+    if [ -f "${HOME}/${DANYRC_NAME}" ]; then # Home dir
+      ANYRC_DANYRC="${HOME}/${DANYRC_NAME}"
+    elif [ -f "$(pwd)/${DANYRC_NAME}" ]; then # Current dir
+      ANYRC_DANYRC="$(pwd)/${DANYRC_NAME}"
+    else
+      echo >&2 "${DANYRC_NAME} not found"
+      exit 1
+    fi
+  fi
+}
+
+set_danyrcd() {
+  # .anyrc.d on local
+  if [ -z "${ANYRC_DANYRCD}" ]; then
+    if [ -d "${HOME}/${DANYRCD_NAME}" ]; then # Home dir
+      ANYRC_DANYRCD="${HOME}/${DANYRCD_NAME}"
+    elif [ -d "$(pwd)/${DANYRCD_NAME}" ]; then # Current dir
+      ANYRC_DANYRCD="$(pwd)/${DANYRCD_NAME}"
+    else
+      echo >&2 "${DANYRCD_NAME} not found"
+      exit 1
+    fi
+  fi
+
+  DANYRCD_BASE="${ANYRC_DANYRCD##*/}"
+  DANYRCD_DIR="${ANYRC_DANYRCD%/*}"
+}
+
+abs_dirname() {
+  local CWD="$(pwd)"
+  local path="$1"
+
+  while [ -n "$path" ]; do
+    cd "${path%/*}"
+    local NAME="${path##*/}"
+    path="$(readlink "${NAME}" || :)"
+  done
+
+  pwd -P
+  cd "${CWD}"
+}
+
+
+
+# Main
+ARGS=("$@")
+echo "ARGS (len=${#ARGS[@]}): ${ARGS[@]}"
+
+init "$@" # (Inherit from *rc)
+
+set_danyrc
+set_danyrcd
+
+mk_tmp_dir # (Inherit from *rc)
+
+transfer # (Inherit from *rc)
+
+connect # (Inherit from *rc)
