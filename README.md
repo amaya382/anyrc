@@ -1,6 +1,6 @@
 <h1 align="center">anyrc</h1>
 
-Bring your .bashrc, .zshrc, .vimrc, etc into any remote environments, such as ssh, docker container (`docker exec`/`kubectl exec`), and other user (`su`).
+Bring your `.bashrc`, `.zshrc`, `.vimrc`, etc. into any remote environments, such as ssh, docker container (`docker exec`/`kubectl exec`), and other user (`su`).
 
 
 ## :soon: Usage
@@ -18,7 +18,7 @@ Just use `*rc` commands instead of original commands
 ### Setup
 ```sh
 # will be installed into /usr/local/bin
-curl -L git@github.com:amaya382/anyrc/master/install.sh | DIR=/usr/local/bin sh
+curl -L https://github.com/amaya382/anyrc/raw/master/install.sh | DIR=/usr/local/bin bash
 
 # Put your dotfiles or create symlinks of them into $HOME/.anyrc.d
 ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
