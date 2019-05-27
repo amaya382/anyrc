@@ -67,9 +67,6 @@ abs_dirname() {
 
 
 # Main
-ARGS=("$@")
-echo "ARGS (len=${#ARGS[@]}): ${ARGS[@]}"
-
 init "$@" # (Inherit from *rc)
 
 set_danyrc
