@@ -5,28 +5,21 @@
 ANYRC_ENV='su'
 
 init() {
-  SU_USER="${ARGS[@]:$#-1:1}"
-  #while [[ -n "${ARGS[@]}" ]]; do
-  #  case $1 in
-  #    -b | -c | -D | -E | -e | -F | -I | -i | -L | -l | -m | -O | -o | -p | -Q | -R | -S | -W | -w )
-  #      SSH_OPTS="${SSH_OPTS} $1 $2"; shift ;;
-  #    -* )
-  #      SSH_OPTS="${SSH_OPTS} $1" ;;
-  #    *)
-  #      if [ -z "${SSH_REMOTE}" ]; then
-  #       SSH_REMOTE="$1"
-  #      else
-  #        local SEMICOLON=$([[ "$@" = *[![:space:]]* ]] && echo '; ')
-  #        CMDARG="$@${SEMICOLON} exit"
-  #        return;
-  #      fi
-  #      ;;
-  #  esac
-  #  shift
-  #done
-  #if [ -z ${SSH_REMOTE} ]; then
-  #  ssh ${SSH_OPTS}; exit 1;
-  #fi
+  SU_OPTS=''
+  while [[ -n "$1" ]]; do
+    case $1 in
+      -* )
+        SU_OPTS="${SU_OPTS} $1" ;;
+      * )
+        if [ -z "${SU_USER}" ]; then
+         SU_USER="$1"
+        fi; ;;
+    esac
+    shift
+  done
+  if [ -z ${SU_USER} ]; then
+    exit 1
+  fi
 }
 
 mk_tmp_dir() {
@@ -49,7 +42,7 @@ transfer() {
 }
 
 connect() {
-  sudo -s -u "${SU_USER}" bash -c "\
+  sudo -s -u "${SU_USER}" ${SU_OPTS} bash -c "\
       export DANYRC_NAME=\"${DANYRC_NAME}\" && \
       export DANYRCD_NAME=\"${DANYRCD_NAME}\" && \
       export ANYRC_ROOT=\"${TMP_DIR}\" && \

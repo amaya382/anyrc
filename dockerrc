@@ -5,12 +5,31 @@
 ANYRC_ENV='docker'
 
 init() {
-  DOCKER_CONTAINER="${ARGS[@]:$#-2:1}"
-  REMOTE_SHELL="${ARGS[@]:$#-1:1}"
+  DOCKER_OPTS=''
+  while [[ -n "$1" ]]; do
+    case "$1" in
+      -e=* | --env=* | -u=* | --user=* | -w=* | --workdir=* )
+        DOCKER_OPTS="${DOCKER_OPTS} $1"; ;;
+      -e | --env | -u | --user | -w | --workdir )
+        DOCKER_OPTS="${DOCKER_OPTS} $1 $2"; shift ;;
+      -* )
+        DOCKER_OPTS="${DOCKER_OPTS} $1"; ;;
+      * )
+        if [ -z "${DOCKER_CONTAINER:+_}" ]; then
+          DOCKER_CONTAINER="$1"
+        elif [ -z ${REMOTE_SHELL:+_} ]; then
+          REMOTE_SHELL="$1"
+        fi; ;;
+    esac
+    shift
+  done
+  if [ -z "${DOCKER_CONTAINER:+_}" ] || [ -z "${REMOTE_SHELL:+_}" ]; then
+    exit 1
+  fi
 }
 
 mk_tmp_dir() {
-  TMP_DIR="$(docker exec ${DOCKER_CONTAINER} mktemp -d)"
+  TMP_DIR="$(docker exec ${DOCKER_OPTS} ${DOCKER_CONTAINER} mktemp -d)"
 }
 
 transfer() {
@@ -30,24 +49,24 @@ transfer() {
     done
   else
     # Transfer .anyrc.d
-    tar czh -C "${DANYRCD_DIR}" "${DANYRCD_BASE}" \
-    | docker exec -i ${DOCKER_CONTAINER} sh -c "tar xz -C ${TMP_DIR}"
+    tar cz -h -C "${DANYRCD_DIR}" "${DANYRCD_BASE}" \
+    | docker exec -i ${DOCKER_OPTS} ${DOCKER_CONTAINER} sh -c "tar xz -C ${TMP_DIR}"
 
     # Transfer *rc
-    local CMD_DIR=$(abs_dirname $0)
+    local CMD_DIR="$(abs_dirname $0)"
     local RCS=()
     for cmd in "${ANYRC_CMD}" "${ANYRC_CMDS[@]}"; do
       if [ -f "${CMD_DIR}/${cmd}" ]; then
         RCS=("${RCS[@]}" "${cmd}")
       fi
     done
-    tar czfh - -C ${CMD_DIR} "${RCS[@]}" \
-    | docker exec -i "${DOCKER_CONTAINER}" sh -c "tar xz -C ${TMP_DIR}"
+    tar czf - -h -C ${CMD_DIR} "${RCS[@]}" \
+    | docker exec -i ${DOCKER_OPTS} "${DOCKER_CONTAINER}" sh -c "tar xz -C ${TMP_DIR}"
   fi
 }
 
 connect() {
-  docker exec -it "${DOCKER_CONTAINER}" \
+  docker exec -it ${DOCKER_OPTS} "${DOCKER_CONTAINER}" \
     "${REMOTE_SHELL}" -c "
       export DANYRC_NAME=\"${DANYRC_NAME}\"
       export DANYRCD_NAME=\"${DANYRCD_NAME}\"

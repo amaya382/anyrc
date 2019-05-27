@@ -7,12 +7,31 @@ set -ex
 ANYRC_ENV='k8s'
 
 init() {
-  K8S_POD="${ARGS[@]:$#-2:1}"
-  REMOTE_SHELL="${ARGS[@]:$#-1:1}"
+  K8S_OPTS=''
+  while [[ -n "$1" ]]; do
+    case "$1" in
+      -c=* )
+        K8S_OPTS="${K8S_OPTS} $1" ;;
+      -c )
+        K8S_OPTS="${K8S_OPTS} $1 $2"; shift ;;
+      -* )
+        K8S_OPTS="${K8S_OPTS} $1" ;;
+      * )
+        if [ -z "${K8S_POD:+_}" ]; then
+         K8S_POD="$1"
+        elif [ -z ${REMOTE_SHELL:+_} ]; then
+          REMOTE_SHELL="$1"
+        fi; ;;
+    esac
+    shift
+  done
+  if [ -z "${K8S_POD:+_}" ] || [ -z "${REMOTE_SHELL:+_}" ]; then
+    exit 1
+  fi
 }
 
 mk_tmp_dir() {
-  TMP_DIR="$(kubectl exec ${K8S_POD} -- mktemp -d)"
+  TMP_DIR="$(kubectl exec ${K8S_OPTS} ${K8S_POD} -- mktemp -d)"
 }
 
 transfer() {
@@ -32,8 +51,8 @@ transfer() {
     done
   else
     # Transfer .anyrc.d
-    tar czh -C "${DANYRCD_DIR}" "${DANYRCD_BASE}" \
-    | kubectl exec -i ${K8S_POD} -- tar xz -C "${TMP_DIR}"
+    tar cz -h -C "${DANYRCD_DIR}" "${DANYRCD_BASE}" \
+    | kubectl exec -i ${K8S_OPTS} ${K8S_POD} -- tar xz -C "${TMP_DIR}"
 
     # Transfer *rc
     local CMD_DIR=$(abs_dirname $0)
@@ -43,13 +62,13 @@ transfer() {
         RCS=("${RCS[@]}" "${cmd}")
       fi
     done
-    tar czfh - -C ${CMD_DIR} "${RCS[@]}" \
-    | kubectl exec -i "${K8S_POD}" -- tar xz -C "${TMP_DIR}"
+    tar czf - -h -C ${CMD_DIR} "${RCS[@]}" \
+    | kubectl exec -i ${K8S_OPTS} "${K8S_POD}" -- tar xz -C "${TMP_DIR}"
   fi
 }
 
 connect() {
-  kubectl exec -it "${K8S_POD}" \
+  kubectl exec -it ${K8S_OPTS} "${K8S_POD}" \
     -- "${REMOTE_SHELL}" -c "
       export DANYRC_NAME=\"${DANYRC_NAME}\"
       export DANYRCD_NAME=\"${DANYRCD_NAME}\"

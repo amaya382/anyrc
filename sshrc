@@ -5,25 +5,21 @@
 ANYRC_ENV='ssh'
 
 init() {
-  while [[ -n "${ARGS[@]}" ]]; do
-    case $1 in
-      -b | -c | -D | -E | -e | -F | -I | -i | -L | -l | -m | -O | -o | -p | -Q | -R | -S | -W | -w )
+  SSH_OPTS=''
+  while [[ -n "$1" ]]; do
+    case "$1" in
+      -b | -c | -D | -E | -e | -F | -I | -i | -J | -L | -l | -m | -O | -o | -p | -Q | -R | -S | -W | -w )
         SSH_OPTS="${SSH_OPTS} $1 $2"; shift ;;
       -* )
         SSH_OPTS="${SSH_OPTS} $1" ;;
-      *)
-        if [ -z "${SSH_REMOTE}" ]; then
+      * )
+        if [ -z "${SSH_REMOTE:+_}" ]; then
          SSH_REMOTE="$1"
-        else
-          local SEMICOLON=$([[ "$@" = *[![:space:]]* ]] && echo '; ')
-          CMDARG="$@${SEMICOLON} exit"
-          return;
-        fi
-        ;;
+        fi; ;;
     esac
     shift
   done
-  if [ -z ${SSH_REMOTE} ]; then
+  if [ -z "${SSH_REMOTE:+_}" ]; then
     ssh ${SSH_OPTS}; exit 1;
   fi
 }
@@ -38,7 +34,7 @@ transfer() {
 
 connect() {
   local CMD_DIR="$(abs_dirname $0)"
-  ssh -t "${SSH_REMOTE}" "\
+  ssh -t "${SSH_REMOTE}" ${SSH_OPTS} "\
       export DANYRC_NAME=\"${DANYRC_NAME}\"
       export DANYRCD_NAME=\"${DANYRCD_NAME}\"
       export ANYRC_ROOT=\"\$(mktemp -d)\"
