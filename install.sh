@@ -7,11 +7,12 @@ for cmd in anyrc sshrc dockerrc kubectlrc surc; do
   ${SUDO} chmod +x "${DIR}/${cmd}"
 done
 
-curl -sSL https://github.com/amaya382/anyrc/raw/master/example/.anyrc -o "${HOME}/.anyrc"
+[ -e "${HOME}/.anyrc" ] && read -p "Override ${HOME}/.anyrc? (y/n): " yn
+[ "${yn=n}" = 'y' ] && curl -sSL https://github.com/amaya382/anyrc/raw/master/example/.anyrc -o "${HOME}/.anyrc"
 mkdir -p "${HOME}/.anyrc.d"
 
 cat << EOS
 anyrc was installed!
-Put your dotfiles into \`${HOME}/.anyrc.d\`. Symlinks are allowed.
+Put your dotfiles into ${HOME}/.anyrc.d. Symlinks are allowed.
 EOS
 
