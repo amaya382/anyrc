@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-[ -z "${DEBUG}" ] || set -ex
-
 ANYRC_ENV='docker'
 
 init() {

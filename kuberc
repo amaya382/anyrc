@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-[ -z "${DEBUG}" ] || set -ex
-
-set -ex
-
 ANYRC_ENV='k8s'
 
 init() {
