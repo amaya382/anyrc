@@ -29,6 +29,8 @@ ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
 * `ANYRC_DANYRC`: Path to `.anyrc`. Default is in home dir or curr dir
 * `ANYRC_DANYRCD`: Path to `.anyrc.d`. Default is in home dir or curr dir
 * `ANYRC_DOCKER_WO_TAR`: If set, will work w/o `tar` on dockerrc
+* `ANYRC_K8S_WO_TAR`: If set, will work w/o `tar` on kubectlrc
+* `ANYRC_WO_TAR`: If set, will work w/o `tar` on any remote environment
 
 
 ## Customize

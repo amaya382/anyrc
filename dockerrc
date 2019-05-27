@@ -36,7 +36,7 @@ transfer() {
   # Transfer .anyrc
   docker cp -L "${ANYRC_DANYRC}" "${DOCKER_CONTAINER}:${TMP_DIR}/${DANYRC_NAME}"
 
-  if [ -n "${ANYRC_DOCKER_WO_TAR}" ]; then
+  if [ -n "${ANYRC_DOCKER_WO_TAR}" ] || [ -n "${ANYRC_WO_TAR}" ]; then
     # Transfer .anyrc.d
     docker cp -L "${ANYRC_DANYRCD}" "${DOCKER_CONTAINER}:${TMP_DIR}/${DANYRCD_NAME}"
 
