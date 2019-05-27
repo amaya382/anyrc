@@ -17,8 +17,10 @@ Just use `*rc` commands instead of original commands
 
 ### Setup
 ```sh
-# will be installed into /usr/local/bin
-curl -L https://github.com/amaya382/anyrc/raw/master/install.sh | DIR=/usr/local/bin bash
+# Will be installed into /usr/local/bin
+# DIR: Where to install
+# FORCE: Override .anyrc or not
+curl -sSL https://github.com/amaya382/anyrc/raw/master/install.sh | DIR=/usr/local/bin bash
 
 # Put your dotfiles or create symlinks of them into $HOME/.anyrc.d
 ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile

@@ -2,6 +2,7 @@
 
 : ${DIR:='/usr/local/bin'}
 [ "$(ls -ld ${DIR} | cut -d' ' -f3)" != "${USER}" ] && SUDO='sudo' || SUDO=''
+echo "Installing anyrc commands into ${DIR}..."
 for cmd in anyrc sshrc dockerrc kubectlrc surc; do
   ${SUDO} curl -sSL "https://github.com/amaya382/anyrc/raw/master/${cmd}" -o "${DIR}/${cmd}"
   ${SUDO} chmod +x "${DIR}/${cmd}"
@@ -12,17 +13,20 @@ if [ -e "${HOME}/.anyrc" ]; then
     echo "Override ${HOME}/.anyrc"
   else
     SKIP_DANYRC=1
-    echo "Skip ${HOME}/.anyrc"
+    echo "Skip installing .anyrc (If you want to install, install again w/ FORCE=1)"
   fi
 fi
 
-[ -z "${SKIP_DANYRC:+_}" ] \
-  && curl -sSL https://github.com/amaya382/anyrc/raw/master/example/.anyrc \
-      -o ~/.anyrc
+if [ -z "${SKIP_DANYRC:+_}" ]; then
+  echo "Installing ${HOME}/.anyrc..."
+  curl -sSL https://github.com/amaya382/anyrc/raw/master/example/.anyrc \
+    -o ~/.anyrc
+fi
+echo "Creating ${HOME}/.anyrc.d..."
 mkdir -p "${HOME}/.anyrc.d"
 
 cat << EOS
-anyrc was installed under ${DIR}!
+anyrc was successfully installed!
 Put your dotfiles into ${HOME}/.anyrc.d. Symlinks are allowed.
 EOS
 
