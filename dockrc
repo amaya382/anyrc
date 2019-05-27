@@ -17,7 +17,7 @@ init() {
       * )
         if [ -z "${DOCKER_CONTAINER:+_}" ]; then
           DOCKER_CONTAINER="$1"
-        elif [ -z ${REMOTE_SHELL:+_} ]; then
+        elif [ -z "${REMOTE_SHELL:+_}" ]; then
           REMOTE_SHELL="$1"
         fi; ;;
     esac
@@ -36,7 +36,7 @@ transfer() {
   # Transfer .anyrc
   docker cp -L "${ANYRC_DANYRC}" "${DOCKER_CONTAINER}:${TMP_DIR}/${DANYRC_NAME}"
 
-  if [ -n "${ANYRC_DOCKER_WO_TAR}" ] || [ -n "${ANYRC_WO_TAR}" ]; then
+  if [ ! -z "${ANYRC_DOCKER_WO_TAR:+_}" ] || [ ! -z "${ANYRC_WO_TAR:+_}" ]; then
     # Transfer .anyrc.d
     docker cp -L "${ANYRC_DANYRCD}" "${DOCKER_CONTAINER}:${TMP_DIR}/${DANYRCD_NAME}"
 

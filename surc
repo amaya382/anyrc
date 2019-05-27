@@ -11,13 +11,13 @@ init() {
       -* )
         SU_OPTS="${SU_OPTS} $1" ;;
       * )
-        if [ -z "${SU_USER}" ]; then
+        if [ -z "${SU_USER:+_}" ]; then
          SU_USER="$1"
         fi; ;;
     esac
     shift
   done
-  if [ -z ${SU_USER} ]; then
+  if [ -z "${SU_USER:+_}" ]; then
     exit 1
   fi
 }

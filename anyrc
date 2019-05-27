@@ -21,7 +21,7 @@ ANYRC_CMDS=( \
 # Funcs
 set_danyrc() {
   # .anyrc on local
-  if [ -z "${ANYRC_DANYRC}" ]; then
+  if [ -z "${ANYRC_DANYRC:+_}" ]; then
     if [ -f "${HOME}/${DANYRC_NAME}" ]; then # Home dir
       ANYRC_DANYRC="${HOME}/${DANYRC_NAME}"
     elif [ -f "$(pwd)/${DANYRC_NAME}" ]; then # Current dir
@@ -35,7 +35,7 @@ set_danyrc() {
 
 set_danyrcd() {
   # .anyrc.d on local
-  if [ -z "${ANYRC_DANYRCD}" ]; then
+  if [ -z "${ANYRC_DANYRCD:+_}" ]; then
     if [ -d "${HOME}/${DANYRCD_NAME}" ]; then # Home dir
       ANYRC_DANYRCD="${HOME}/${DANYRCD_NAME}"
     elif [ -d "$(pwd)/${DANYRCD_NAME}" ]; then # Current dir

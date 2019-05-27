@@ -38,7 +38,7 @@ transfer() {
   # Transfer .anyrc
   kubectl cp "$(readlink -f ${ANYRC_DANYRC})" "${K8S_POD}:${TMP_DIR}/${DANYRC_NAME}"
 
-  if [ -n "${ANYRC_K8S_WO_TAR}" ] || [ -n "${ANYRC_WO_TAR}" ]; then
+  if [ ! -z "${ANYRC_K8S_WO_TAR:+_}" ] || [ ! -z "${ANYRC_WO_TAR:+_}" ]; then
     # Transfer .anyrc.d
     kubectl cp "$(readlink -f ${ANYRC_DANYRCD})" "${K8S_POD}:${TMP_DIR}/${DANYRCD_NAME}"
 
