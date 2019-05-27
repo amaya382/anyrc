@@ -10,10 +10,10 @@ Just use `*rc` commands instead of original commands
   * e.g., `sshrc -p 10022 foo@XXX.XXX.XXX.XXX`
 * `surc xxx` instead of `su xxx`
   * e.g., `surc foo`
-* `dockerrc xxx` instead of `docker exec xxx`
-  * e.g., `dockerrc foo_container bash`
-* `kubectlrc xxx` instead of `kubectl exec xxx`
-  * e.g., `kubectlrc foo_pod zsh`
+* `dockrc xxx` instead of `docker exec xxx`
+  * e.g., `dockrc foo_container bash`
+* `kuberc xxx` instead of `kubectl exec xxx`
+  * e.g., `kuberc foo_pod zsh`
 
 ### Setup
 ```sh
@@ -28,8 +28,8 @@ ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
 ### Options
 * `ANYRC_DANYRC`: Path to `.anyrc`. Default is in home dir or curr dir
 * `ANYRC_DANYRCD`: Path to `.anyrc.d`. Default is in home dir or curr dir
-* `ANYRC_DOCKER_WO_TAR`: If set, will work w/o `tar` on dockerrc
-* `ANYRC_K8S_WO_TAR`: If set, will work w/o `tar` on kubectlrc
+* `ANYRC_DOCKER_WO_TAR`: If set, will work w/o `tar` on dockrc
+* `ANYRC_K8S_WO_TAR`: If set, will work w/o `tar` on kuberc
 * `ANYRC_WO_TAR`: If set, will work w/o `tar` on any remote environment
 
 
