@@ -30,7 +30,6 @@ ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
 ### Options
 * `ANYRC_DANYRC`: Path to `.anyrc`. Default is in home dir or curr dir
 * `ANYRC_DANYRCD`: Path to `.anyrc.d`. Default is in home dir or curr dir
-* `ANYRC_ENV`: Show remote environment (`ssh`/`su`/`docker`/`k8s`)
 * `ANYRC_DOCKER_WO_TAR`: If set, will work w/o `tar` on dockrc
 * `ANYRC_K8S_WO_TAR`: If set, will work w/o `tar` on kuberc
 * `ANYRC_WO_TAR`: If set, will work w/o `tar` on any remote environment
@@ -42,6 +41,7 @@ ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
 * `.anyrc.d/*`: Dotfiles you want to bring into remote. Symlinks are allowed.
 
 ### Environment variables (in `.anyrc` and `.anyrc.d/*`)
+* `ANYRC_ENV`: Show remote environment (`ssh`/`su`/`docker`/`k8s`)
 * `ANYRC_ROOT`: Path to tmp dir including all anyrc-related files each connection
 * `ANYRC_HOME`: Path to dir for dotfiles
 * `ANYRC_DANYRC`: Path to `.anyrc`
