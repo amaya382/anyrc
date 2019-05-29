@@ -75,8 +75,6 @@ connect() {
       export SHELL=\$(which \"${REMOTE_SHELL}\")
       export PATH=\"\${PATH}:\${ANYRC_ROOT}\"
       trap \"rm -rf \${ANYRC_ROOT}; exit\" 0
-      echo -e \"source \${ANYRC_DANYRC}\\n${REMOTE_SHELL}\" \\
-        > \"\${ANYRC_HOME}/${REMOTE_SHELL##*/}rc\"
       source \"\${ANYRC_DANYRC}\"
       [ \"${REMOTE_SHELL##*/}\" = 'bash' ] \
         && bash --rcfile \${ANYRC_DANYRC} \
