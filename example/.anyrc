@@ -1,17 +1,22 @@
+# This example is compatible with bash and zsh
+
 CURR_SHELL="$(readlink /proc/$$/exe)"
 
-# vim
-export VIMINIT="let \$MYVIMRC='${ANYRC_HOME}/.vimrc' | source \${MYVIMRC}"
-
-# bash
+# For before loading shell
+## bash
 bash() {
   $(sh -c 'which bash') --rcfile "${ANYRC_HOME}/.bashrc"
 }
 
-# zsh
+## zsh
 export ZDOTDIR="${ANYRC_HOME}"
 
-# tmux
+
+# For after loading shell
+## vim
+export VIMINIT="let \$MYVIMRC='${ANYRC_HOME}/.vimrc' | source \${MYVIMRC}"
+
+## tmux
 tmux() {
   local TMUX_DIR_SUFFIX="$(hostname)-$(whoami)"
   if [ $(which sha1sum) ]; then
@@ -39,5 +44,10 @@ tmux() {
     ANYRC_HOME="${TMUX_DIR}/${DANYRCD_NAME}" \
     $(sh -c 'which tmux') -2 \
       -f "${TMUX_DIR}/${DANYRCD_NAME}/.tmux.conf" \
-      -S "${TMUX_DIR}/tmuxserver" $@
+      -S "${TMUX_DIR}/tmuxserver" "$@"
+}
+
+## git
+git() {
+  HOME="${ANYRC_HOME}" git "$@"
 }

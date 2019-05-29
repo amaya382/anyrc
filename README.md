@@ -67,6 +67,7 @@ See [example](https://github.com/amaya382/anyrc/tree/master/example)
 * bash
 * tmux
 * vim
+* git
 * etc.
 
 
