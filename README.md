@@ -30,6 +30,7 @@ ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
 ### Options
 * `ANYRC_DANYRC`: Path to `.anyrc`. Default is in home dir or curr dir
 * `ANYRC_DANYRCD`: Path to `.anyrc.d`. Default is in home dir or curr dir
+* `ANYRC_SSH_CMD`: `ssh` command
 * `ANYRC_DOCKER_WO_TAR`: If set, will work w/o `tar` on dockrc
 * `ANYRC_K8S_WO_TAR`: If set, will work w/o `tar` on kuberc
 * `ANYRC_WO_TAR`: If set, will work w/o `tar` on any remote environment

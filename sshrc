@@ -3,9 +3,13 @@
 ANYRC_ENV='ssh'
 
 init() {
+  SSH_CMD="${ANYRC_SSH_CMD:-ssh}"
   SSH_OPTS=''
   while [[ -n "$1" ]]; do
     case "$1" in
+      --ssh_cmd )
+        SSH_CMD="$2"
+        shift ;;
       -b | -c | -D | -E | -e | -F | -I | -i | -J | -L | -l | -m | -O | -o | -p | -Q | -R | -S | -W | -w )
         SSH_OPTS="${SSH_OPTS} $1 $2"; shift ;;
       -* )
@@ -18,7 +22,7 @@ init() {
     shift
   done
   if [ -z "${SSH_REMOTE:+_}" ]; then
-    ssh ${SSH_OPTS}; exit 1;
+    ${SSH_CMD} ${SSH_OPTS}; exit 1;
   fi
 }
 
@@ -41,7 +45,7 @@ connect() {
     exit 1
   fi
   local CMD_DIR="$(abs_dirname $0)"
-  ssh -t "${SSH_REMOTE}" ${SSH_OPTS} "\
+  ${SSH_CMD} -t "${SSH_REMOTE}" ${SSH_OPTS} "\
     if [ \$(which base64) ]; then
       DECODE=('base64' '-d')
     elif [ \$(which openssl) ]; then
