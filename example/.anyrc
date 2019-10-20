@@ -42,6 +42,8 @@ tmux() {
     ANYRC_DANYRC="${TMUX_DIR}/${DANYRC_NAME}" \
     ANYRC_DANYRCD="${TMUX_DIR}/${DANYRCD_NAME}" \
     ANYRC_HOME="${TMUX_DIR}/${DANYRCD_NAME}" \
+    VIMINIT="let \$MYVIMRC='${TMUX_DIR}/${DANYRCD_NAME}/.vimrc' | source \${MYVIMRC}" \
+    ZDOTDIR="${TMUX_DIR}/${DANYRCD_NAME}" \
     $(sh -c 'which tmux') -2 \
       -f "${TMUX_DIR}/${DANYRCD_NAME}/.tmux.conf" \
       -S "${TMUX_DIR}/tmuxserver" "$@"
