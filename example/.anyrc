@@ -49,5 +49,5 @@ tmux() {
 
 ## git
 git() {
-  HOME="${ANYRC_HOME}" git "$@"
+  HOME="${ANYRC_HOME}" $(sh -c 'which git') "$@"
 }
