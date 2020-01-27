@@ -64,9 +64,9 @@ connect() {
     export PATH=\"\${ANYRC_ROOT}:\${PATH}\"
     trap \"rm -rf \${ANYRC_ROOT}; exit\" 0
     mkdir -p \${ANYRC_DANYRCD}
-    echo $'"$(cat "${ANYRC_DANYRC}" | ${ENCODE[@]})"' | tr -s ' ' $'\n' | \${DECODE[@]} > \${ANYRC_DANYRC}
-    echo $'"$(tar czf - -h -C ${CMD_DIR} ${ANYRC_CMD} ${ANYRC_CMDS[@]} | ${ENCODE[@]})"' | tr -s ' ' $'\n' | \${DECODE[@]} | tar mxzf - -C \${ANYRC_ROOT}
-    echo $'"$(tar czf - -h -C ${DANYRCD_DIR} ${DANYRCD_BASE} | ${ENCODE[@]})"' | tr -s ' ' $'\n' | \${DECODE[@]} | tar mxzf - -C \${ANYRC_ROOT}
+    echo '"$(cat "${ANYRC_DANYRC}" | ${ENCODE[@]})"' | tr -s ' ' '\n' | \${DECODE[@]} > \${ANYRC_DANYRC}
+    echo '"$(tar czf - -h -C ${CMD_DIR} ${ANYRC_CMD} ${ANYRC_CMDS[@]} | ${ENCODE[@]})"' | tr -s ' ' $'\n' | \${DECODE[@]} | tar mxzf - -C \${ANYRC_ROOT}
+    echo '"$(tar czf - -h -C ${DANYRCD_DIR} ${DANYRCD_BASE} | ${ENCODE[@]})"' | tr -s ' ' '\n' | \${DECODE[@]} | tar mxzf - -C \${ANYRC_ROOT}
     source \${ANYRC_DANYRC}
     [ \"\${SHELL##*/}\" = 'bash' ] \
       && bash --rcfile \${ANYRC_DANYRC} \
