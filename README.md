@@ -10,12 +10,14 @@ Just use `*rc` commands instead of original commands
   * e.g., `sshrc -p 10022 foo@XXX.XXX.XXX.XXX`
 * `surc xxx` instead of `su xxx`
   * e.g., `surc foo`
-* `dockerexecrc xxx` instead of `docker exec xxx`
-  * e.g., `dockerexecrc foo_running_container bash`
-* `dockerrunrc xxx` instead of `docker run -it xxx`
-  * e.g., `dockerrunrc foo_image bash`
-* `kubectlexecrc xxx` instead of `kubectl exec xxx`
-  * e.g., `kubectlexecrc foo_running_pod zsh`
+* `dockerrc exec xxx` instead of `docker exec xxx`
+  * e.g., `dockerrc exec foo_running_container bash`
+* `dockerrc run xxx` instead of `docker run -it xxx`
+  * e.g., `dockerrc run foo_image bash`
+* `kubectlrc exec xxx` instead of `kubectl exec xxx`
+  * e.g., `kubectlrc exec foo_running_pod zsh`
+
+**Note**: Incompatible subcommands (e.g., `ps` for `dockerrc`) will be passed to the original command (i.e., `docker ps` will be executed).
 
 
 ### Setup
@@ -24,10 +26,6 @@ Just use `*rc` commands instead of original commands
 # DIR: Where to install
 # FORCE: Override .anyrc or not
 curl -sSL https://github.com/amaya382/anyrc/raw/master/install.sh | DIR=/usr/local/bin bash
-
-# If you want shorter commands, speficy aliases in your dotfiles
-# echo 'alias drrc=dockerrunrc' >> ~/.zshrc
-# echo 'alias derc=dockerexecrc' >> ~/.zshrc
 
 # Put your dotfiles or create symlinks of them into $HOME/.anyrc.d
 ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
@@ -38,8 +36,8 @@ ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
 * `ANYRC_DANYRC`: Path to `.anyrc`. Default is in home dir or curr dir
 * `ANYRC_DANYRCD`: Path to `.anyrc.d`. Default is in home dir or curr dir
 * `ANYRC_SSH_CMD`: `ssh` command, i.e., you can use `autossh` instead
-* `ANYRC_DOCKER_WO_TAR`: If set, will work w/o `tar` on `dockerexecrc`
-* `ANYRC_K8S_WO_TAR`: If set, will work w/o `tar` on `kubectlexecrc`
+* `ANYRC_DOCKER_WO_TAR`: If set, will work w/o `tar` on `dockerrc`
+* `ANYRC_K8S_WO_TAR`: If set, will work w/o `tar` on `kubectlrc`
 * `ANYRC_WO_TAR`: If set, will work w/o `tar` on any remote environment
 
 
