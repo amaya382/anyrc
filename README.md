@@ -1,6 +1,6 @@
 <h1 align="center">anyrc</h1>
 
-Bring your `.bashrc`, `.zshrc`, `.vimrc`, etc. into any remote environments, such as ssh, docker container (`docker exec`/`kubectl exec`), and other user (`su`).
+Bring your `.bashrc`, `.zshrc`, `.vimrc`, etc. into any remote environments, such as `ssh`, docker container (`docker run` / `docker exec` / `kubectl exec`), and another user (`su`).
 
 
 ## :soon: Usage
@@ -10,10 +10,13 @@ Just use `*rc` commands instead of original commands
   * e.g., `sshrc -p 10022 foo@XXX.XXX.XXX.XXX`
 * `surc xxx` instead of `su xxx`
   * e.g., `surc foo`
-* `dockrc xxx` instead of `docker exec xxx`
-  * e.g., `dockrc foo_container bash`
-* `kuberc xxx` instead of `kubectl exec xxx`
-  * e.g., `kuberc foo_pod zsh`
+* `dockerexecrc xxx` instead of `docker exec xxx`
+  * e.g., `dockerexecrc foo_running_container bash`
+* `dockerrunrc xxx` instead of `docker run -it xxx`
+  * e.g., `dockerrunrc foo_image bash`
+* `kubectlexecrc xxx` instead of `kubectl exec xxx`
+  * e.g., `kubectlexecrc foo_running_pod zsh`
+
 
 ### Setup
 ```sh
@@ -21,6 +24,10 @@ Just use `*rc` commands instead of original commands
 # DIR: Where to install
 # FORCE: Override .anyrc or not
 curl -sSL https://github.com/amaya382/anyrc/raw/master/install.sh | DIR=/usr/local/bin bash
+
+# If you want shorter commands, speficy aliases in your dotfiles
+# echo 'alias drrc=dockerrunrc' >> ~/.zshrc
+# echo 'alias derc=dockerexecrc' >> ~/.zshrc
 
 # Put your dotfiles or create symlinks of them into $HOME/.anyrc.d
 ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
@@ -30,15 +37,15 @@ ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
 ### Options
 * `ANYRC_DANYRC`: Path to `.anyrc`. Default is in home dir or curr dir
 * `ANYRC_DANYRCD`: Path to `.anyrc.d`. Default is in home dir or curr dir
-* `ANYRC_SSH_CMD`: `ssh` command
-* `ANYRC_DOCKER_WO_TAR`: If set, will work w/o `tar` on dockrc
-* `ANYRC_K8S_WO_TAR`: If set, will work w/o `tar` on kuberc
+* `ANYRC_SSH_CMD`: `ssh` command, i.e., you can use `autossh` instead
+* `ANYRC_DOCKER_WO_TAR`: If set, will work w/o `tar` on `dockerexecrc`
+* `ANYRC_K8S_WO_TAR`: If set, will work w/o `tar` on `kubectlexecrc`
 * `ANYRC_WO_TAR`: If set, will work w/o `tar` on any remote environment
 
 
 ## Customize
 ### Config files
-* `.anyrc`: Pre-configured for zsh, bash, tmux, and vim. If you want to support another tool, edit me.
+* `.anyrc`: Pre-configured for zsh, bash, tmux, and vim. If you want to support other tools, edit me.
 * `.anyrc.d/*`: Dotfiles you want to bring into remote. Symlinks are allowed.
 
 ### Environment variables (in `.anyrc` and `.anyrc.d/*`)
@@ -56,6 +63,8 @@ See [example](https://github.com/amaya382/anyrc/tree/master/example)
 ### Supported remote environments
 * `ssh`
   * Attach w/ a login shell
+* `docker run`
+  * Attach w/ a specified shell
 * `docker exec`
   * Attach w/ a specified shell
 * `kubectl exec`

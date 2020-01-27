@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+ANYRC_ENV='dockerrun'
+
+init() {
+  DOCKER_OPTS=''
+  while [[ -n "$1" ]]; do
+    case "$1" in
+      --add-host=* | -a=* | --attach=* | --blkio-weight=* | --blkio-weight-device=* | --cap-add=* | --cap-drop=* | --cgroup-parent=* | --cidfile=* | --cpu-period=* | --cpu-quota=* | --cpu-rt-period=* | --cpu-rt-runtime=* | -c=* | --cpu-shares=* | --cpus=* | --cpuset-cpus=* | --cpuset-mems=* | --detach-keys=* | --device=* | --device-cgroup-rule=* | --device-read-bps=* | --device-read-iops=* | --device-write-bps=* | --device-write-iops=* | --dns=* | --dns-option=* | --dns-search=* | --domainname=* | --entrypoint=* | -e=* | --env=* | --env-file=* | --expose=* | --gpus=* | -r=* | --group-add=* | --health-cmd=* | --health-interval=* | --health-retries=* | --health-start-period=* | -r=* | --health-timeout=* | -h=* | --hostname=* | --ip=* | --ip=* | --ipc=* | --isolation=* | --kernel-memory=* | -l=* | --label=* | --label-file=* | --link=* | --link-local-ip=* | -l=* | --log-driver=* | --log-opt=* | --mac-address=* | -m=* | --memory=* | --memory-reservation=* | --memory-swap=* | --memory-swappiness=* | --mount=* | --name=* | --network=* | --network-alias=* | -s=* | -s=* | --oom-score-adj=* | --pid=* | --pids-limit=* | --platform=* | -p=* | --privileged=* | -p=* | --publish=* | --restart=* | --runtime=* | --security-opt=* | --shm-size=* | --stop-signal=* | --stop-timeout=* | --storage-opt=* | --sysctl=* | --tmpfs=* | --ulimit=* | -u=* | --user=* | --userns=* | --uts=* | -v=* | --volume=* | --volume-driver=* | --volumes-from=* | -w=* | --workdir=* )
+        DOCKER_OPTS="${DOCKER_OPTS} $1"; ;;
+      --add-host | -a | --attach | --blkio-weight | --blkio-weight-device | --cap-add | --cap-drop | --cgroup-parent | --cidfile | --cpu-period | --cpu-quota | --cpu-rt-period | --cpu-rt-runtime | -c | --cpu-shares | --cpus | --cpuset-cpus | --cpuset-mems | --detach-keys | --device | --device-cgroup-rule | --device-read-bps | --device-read-iops | --device-write-bps | --device-write-iops | --dns | --dns-option | --dns-search | --domainname | --entrypoint | -e | --env | --env-file | --expose | --gpus | -r | --group-add | --health-cmd | --health-interval | --health-retries | --health-start-period | -r | --health-timeout | -h | --hostname | --ip | --ip | --ipc | --isolation | --kernel-memory | -l | --label | --label-file | --link | --link-local-ip | -l | --log-driver | --log-opt | --mac-address | -m | --memory | --memory-reservation | --memory-swap | --memory-swappiness | --mount | --name | --network | --network-alias | -s | -s | --oom-score-adj | --pid | --pids-limit | --platform | -p | --privileged | -p | --publish | --restart | --runtime | --security-opt | --shm-size | --stop-signal | --stop-timeout | --storage-opt | --sysctl | --tmpfs | --ulimit | -u | --user | --userns | --uts | -v | --volume | --volume-driver | --volumes-from | -w | --workdir )
+        DOCKER_OPTS="${DOCKER_OPTS} $1 $2"; shift ;;
+      -* )
+        DOCKER_OPTS="${DOCKER_OPTS} $1"; ;;
+      * )
+        if [ -z "${DOCKER_IMAGE:+_}" ]; then
+          DOCKER_IMAGE="$1"
+        elif [ -z "${REMOTE_SHELL:+_}" ]; then
+          REMOTE_SHELL="$1"
+        fi; ;;
+    esac
+    shift
+  done
+  if [ -z "${DOCKER_IMAGE:+_}" ] || [ -z "${REMOTE_SHELL:+_}" ]; then
+    exit 1
+  fi
+}
+
+mk_tmp_dir() {
+  :
+}
+
+transfer() {
+  :
+}
+
+connect() {
+  if [ $(which base64) ]; then
+    ENCODE=('base64')
+  elif [ $(which openssl) ]; then
+    ENCODE=('openssl' 'enc' '-base64')
+  fi
+  if [ -z "${ENCODE:+_}" ]; then
+    echo 'dockerrunrc requires base64 or openssl command' 1>&2
+    exit 1
+  fi
+  local CMD_DIR="$(abs_dirname $0)"
+  docker run -it ${DOCKER_OPTS} "${DOCKER_IMAGE}" \
+    "${REMOTE_SHELL}" -c "
+    if [ \$(which base64) ]; then
+      DECODE=('base64' '-d')
+    elif [ \$(which openssl) ]; then
+      DECODE=('openssl' 'enc' '-base64' '-d')
+    fi
+    if [ -z \"\${DECODE:+_}\" ]; then
+      echo 'sshrc requires base64 or openssl command' 1>&2
+      exit 1
+    fi
+    export DANYRC_NAME=\"${DANYRC_NAME}\"
+    export DANYRCD_NAME=\"${DANYRCD_NAME}\"
+    export ANYRC_ROOT=\"\$(mktemp -d)\"
+    export ANYRC_DANYRC=\"\${ANYRC_ROOT}/\${DANYRC_NAME}\"
+    export ANYRC_DANYRCD=\"\${ANYRC_ROOT}/\${DANYRCD_NAME}\"
+    export ANYRC_HOME=\"\${ANYRC_DANYRCD}\"
+    export PATH=\"\${ANYRC_ROOT}:\${PATH}\"
+    trap \"rm -rf \${ANYRC_ROOT}; exit\" 0
+    mkdir -p \${ANYRC_DANYRCD}
+    echo '$(cat "${ANYRC_DANYRC}" | ${ENCODE[@]})' | \${DECODE[@]} > \${ANYRC_DANYRC}
+    echo '$(tar czf - -h -C ${CMD_DIR} ${ANYRC_CMD} ${ANYRC_CMDS[@]} | ${ENCODE[@]})' | \${DECODE[@]} | tar mxzf - -C \${ANYRC_ROOT}
+    echo '$(tar czf - -h -C ${DANYRCD_DIR} ${DANYRCD_BASE} | ${ENCODE[@]})' | \${DECODE[@]} | tar mxzf - -C \${ANYRC_ROOT}
+    source \"\${ANYRC_DANYRC}\"
+    [ \"${REMOTE_SHELL##*/}\" = 'bash' ] \
+     && bash --rcfile \${ANYRC_DANYRC} \
+     || ${REMOTE_SHELL}"
+}
+
+source ./anyrc

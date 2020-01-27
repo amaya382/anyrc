@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ANYRC_ENV='k8s'
+ANYRC_ENV='kubectlexec'
 
 init() {
   K8S_OPTS=''

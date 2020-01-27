@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ANYRC_ENV='docker'
+ANYRC_ENV='dockerexec'
 
 init() {
   DOCKER_OPTS=''

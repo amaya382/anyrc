@@ -3,7 +3,10 @@
 : ${DIR:='/usr/local/bin'}
 [ "$(ls -ld ${DIR} | cut -d' ' -f3)" != "${USER}" ] && SUDO='sudo' || SUDO=''
 echo "Installing anyrc commands into ${DIR}..."
-for cmd in anyrc sshrc dockrc kuberc surc; do
+for cmd in dockrc kuberc; do
+  ${SUDO} rm "${DIR}/${cmd}" # Remove old commands
+done
+for cmd in anyrc sshrc dockerexecrc dockerrunrc kubectlexecrc surc; do
   ${SUDO} curl -sSL "https://github.com/amaya382/anyrc/raw/master/${cmd}" -o "${DIR}/${cmd}"
   ${SUDO} chmod +x "${DIR}/${cmd}"
 done
