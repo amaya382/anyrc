@@ -1,4 +1,4 @@
-<h1 align="center">anyrc</h1>
+<h1 align="center">:shell: anyrc</h1>
 
 Bring your `.bashrc`, `.zshrc`, `.vimrc`, etc. into any remote environments, such as `ssh`, docker container (`docker run` / `docker exec` / `kubectl exec`), and another user (`su`).
 
