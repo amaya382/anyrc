@@ -34,7 +34,7 @@ tmux() {
   [ ! -d "${TMUX_DIR}" ] && rm -rf "${TMUX_DIR}"
   mkdir -p "${TMUX_DIR}"
 
-  cp -rf "${ANYRC_DANYRC}" "${ANYRC_DANYRCD}" "${TMUX_DIR}" # Copy env for tmux
+  cp -rf "${ANYRC_DANYRC}" "${ANYRC_DANYRCD}" "${TMUX_DIR}" &> /dev/null # Copy env for tmux
 
   DANYRC_NAME="${DANYRC_NAME}" \
     DANYRCD_NAME="${DANYRCD_NAME}" \
@@ -44,6 +44,7 @@ tmux() {
     ANYRC_HOME="${TMUX_DIR}/${DANYRCD_NAME}" \
     VIMINIT="let \$MYVIMRC='${TMUX_DIR}/${DANYRCD_NAME}/.vimrc' | source \${MYVIMRC}" \
     ZDOTDIR="${TMUX_DIR}/${DANYRCD_NAME}" \
+    PATH="${TMUX_DIR}:${PATH}" \
     $(sh -c 'which tmux') -2 \
       -f "${TMUX_DIR}/${DANYRCD_NAME}/.tmux.conf" \
       -S "${TMUX_DIR}/tmuxserver" "$@"
