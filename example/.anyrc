@@ -24,7 +24,7 @@ tmux() {
   chmod 700 "${TMUX_DIR}"
 
   # Copy all of anyrc for inside of tmux
-  cp -rf "${ANYRC_DANYRC}" "${ANYRC_DANYRCD}" "${TMUX_DIR}" &> /dev/null
+  'cp' -rf "${ANYRC_ROOT}/." "${TMUX_DIR}" &> /dev/null
 
   # If ssh-agent is enabled, use a static path
   [ -n "${SSH_AUTH_SOCK}" ] && ln -sf "${SSH_AUTH_SOCK}" "${TMUX_DIR}/agent"
