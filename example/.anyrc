@@ -18,21 +18,10 @@ export VIMINIT="let \$MYVIMRC='${ANYRC_HOME}/.vimrc' | source \${MYVIMRC}"
 
 ## tmux
 tmux() {
-  local TMUX_DIR_SUFFIX="$(hostname)-$(whoami)"
-  if [ $(which sha1sum) ]; then
-    TMUX_DIR_SUFFIX="$(echo \"${TMUX_DIR_SUFFIX}\" \
-      | sha1sum \
-      | sed 's/.*\([a-f0-9]\{40\}\).*/\1/' \
-      | cut -c 1-7)"
-  elif [ $(which openssl) ]; then
-    TMUX_DIR_SUFFIX="$(echo \"${TMUX_DIR_SUFFIX}\" \
-      | openssl sha1 \
-      | sed 's/.*\([a-f0-9]\{40\}\).*/\1/' \
-      | cut -c 1-7)"
-  fi
-  local TMUX_DIR="/tmp/tmp.tmux-${TMUX_DIR_SUFFIX}"
+  local TMUX_DIR="/tmp/anyrc.tmux.$(whoami)"
   [ ! -d "${TMUX_DIR}" ] && rm -rf "${TMUX_DIR}"
   mkdir -p "${TMUX_DIR}"
+  chmod 700 "${TMUX_DIR}"
 
   # Copy all of anyrc for inside of tmux
   cp -rf "${ANYRC_DANYRC}" "${ANYRC_DANYRCD}" "${TMUX_DIR}" &> /dev/null
