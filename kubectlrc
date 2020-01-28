@@ -36,7 +36,7 @@ init() {
 mk_tmp_dir() {
   case "${K8S_SUBCMD}" in
     exec )
-      TMP_DIR="$(kubectl exec ${K8S_OPTS} ${K8S_POD} -- mktemp -d)"; ;;
+      TMP_DIR="$(kubectl exec ${K8S_OPTS} ${K8S_POD} -- mktemp -d anyrc.XXXXXX)"; ;;
   esac
 }
 
