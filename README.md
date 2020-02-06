@@ -22,10 +22,11 @@ Just use `*rc` commands instead of original commands
 
 ### Setup
 ```sh
-# If you want to install the latest version, change 0.0.1 to master in the url
+# If you want to install the latest version, change version to master in the url and set VERSION
+# VERSION: anyrc version (default: same as install script version)
 # DIR: Where to install (default: /usr/local/bin)
 # FORCE: If defined, override .anyrc (default: undefined)
-curl -sS https://raw.githubusercontent.com/amaya382/anyrc/0.0.1/install.sh | DIR=/usr/local/bin bash
+curl -sS https://raw.githubusercontent.com/amaya382/anyrc/0.0.2/install.sh | DIR=/usr/local/bin bash
 
 # Put your dotfiles or create symlinks of them into $HOME/.anyrc.d
 ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
