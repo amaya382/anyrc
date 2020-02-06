@@ -21,7 +21,7 @@ init() {
 }
 
 mk_tmp_dir() {
-  TMP_DIR="$(mktemp -d anyrc.XXXXXX)"
+  TMP_DIR="$(mktemp -d /tmp/anyrc.XXXXXX)"
 }
 
 transfer() {
