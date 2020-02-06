@@ -56,6 +56,13 @@ ln -s /path/to/your/dotfiles/.dotfile $HOME/.anyrc.d/.dotfile
 ### Examples
 See [example](https://github.com/amaya382/anyrc/tree/master/example)
 
+### Completion
+#### zsh
+```sh
+compdef dockerrc=docker
+compdef kubectlrc=kubectl
+```
+
 
 ## :trident: Features
 ### Supported remote environments
