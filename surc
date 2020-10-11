@@ -51,9 +51,11 @@ connect() {
       trap \"rm -rf \${ANYRC_ROOT}/*; exit\" 0 && \
       mkdir -p \${ANYRC_DANYRCD} && \
       source \${ANYRC_DANYRC}
-      [ \"\${SHELL##*/}\" = 'bash' ] \
-        && bash --rcfile \${ANYRC_DANYRC} \
-        || \${SHELL}"
+      if [ \"\${SHELL##*/}\" = 'bash' ]; then
+        bash --rcfile \${ANYRC_DANYRC};
+      else
+        \${SHELL};
+      fi"
   rm -rf "${TMP_DIR}" # FIXME
 }
 
