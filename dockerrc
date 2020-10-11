@@ -116,47 +116,38 @@ connect() {
       local CMD_DIR="$(abs_dirname $0)"
       docker run -it ${DOCKER_OPTS} "${DOCKER_IMAGE}" \
         "${REMOTE_SHELL}" -c "
-        if [ \$(which base64) ]; then
-          DECODE=('base64' '-d')
-        elif [ \$(which openssl) ]; then
-          DECODE=('openssl' 'enc' '-base64' '-d')
-        fi
-        if [ -z \"\${DECODE:+_}\" ]; then
-          echo 'sshrc requires base64 or openssl command' 1>&2
-          exit 1
-        fi
-        export DANYRC_NAME=\"${DANYRC_NAME}\"
-        export DANYRCD_NAME=\"${DANYRCD_NAME}\"
-        export ANYRC_ROOT=\"\$(mktemp -d /tmp/anyrc.XXXXXX)\"
-        export ANYRC_DANYRC=\"\${ANYRC_ROOT}/\${DANYRC_NAME}\"
-        export ANYRC_DANYRCD=\"\${ANYRC_ROOT}/\${DANYRCD_NAME}\"
-        export ANYRC_HOME=\"\${ANYRC_DANYRCD}\"
-        export PATH=\"\${ANYRC_ROOT}:\${PATH}\"
-        trap \"rm -rf \${ANYRC_ROOT}; exit\" 0
-        mkdir -p \${ANYRC_DANYRCD}
-        echo '$(cat "${ANYRC_DANYRC}" | ${ENCODE[@]})' | \${DECODE[@]} > \${ANYRC_DANYRC}
-        echo '$(tar czf - -h -C ${CMD_DIR} ${ANYRC_CMD} ${ANYRC_CMDS[@]} | ${ENCODE[@]})' | \${DECODE[@]} | tar mxzf - -C \${ANYRC_ROOT}
-        echo '$(tar czf - -h -C ${DANYRCD_DIR} ${DANYRCD_BASE} | ${ENCODE[@]})' | \${DECODE[@]} | tar mxzf - -C \${ANYRC_ROOT}
-        source \"\${ANYRC_DANYRC}\"
-        [ \"${REMOTE_SHELL##*/}\" = 'bash' ] \
-         && bash --rcfile \${ANYRC_DANYRC} \
-         || ${REMOTE_SHELL}"; ;;
+          export DANYRC_NAME=\"${DANYRC_NAME}\"
+          export DANYRCD_NAME=\"${DANYRCD_NAME}\"
+          export ANYRC_ROOT=\"\$(mktemp -d /tmp/anyrc.XXXXXX)\"
+          export ANYRC_DANYRC=\"\${ANYRC_ROOT}/\${DANYRC_NAME}\"
+          export ANYRC_DANYRCD=\"\${ANYRC_ROOT}/\${DANYRCD_NAME}\"
+          export ANYRC_HOME=\"\${ANYRC_DANYRCD}\"
+          export PATH=\"\${ANYRC_ROOT}:\${PATH}\"
+          trap \"rm -rf \${ANYRC_ROOT}; exit\" 0
+          mkdir -p \${ANYRC_DANYRCD}
+          echo '$(cat "${ANYRC_DANYRC}" | base64)' | base64 -d > \${ANYRC_DANYRC}
+          echo '$(tar czf - -h -C ${CMD_DIR} ${ANYRC_CMD} ${ANYRC_CMDS[@]} | base64)' | base64 -d | tar mxzf - -C \${ANYRC_ROOT}
+          echo '$(tar czf - -h -C ${DANYRCD_DIR} ${DANYRCD_BASE} | base64)' | base64 -d | tar mxzf - -C \${ANYRC_ROOT}
+          source \"\${ANYRC_DANYRC}\"
+          [ \"${REMOTE_SHELL##*/}\" = 'bash' ] \
+          && bash --rcfile \${ANYRC_DANYRC} \
+          || ${REMOTE_SHELL}"; ;;
     exec )
-        docker exec -it ${DOCKER_OPTS} "${DOCKER_CONTAINER}" \
-          "${REMOTE_SHELL}" -c "
-            export DANYRC_NAME=\"${DANYRC_NAME}\"
-            export DANYRCD_NAME=\"${DANYRCD_NAME}\"
-            export ANYRC_ROOT=\"${TMP_DIR}\"
-            export ANYRC_DANYRC=\"\${ANYRC_ROOT}/\${DANYRC_NAME}\"
-            export ANYRC_DANYRCD=\"\${ANYRC_ROOT}/\${DANYRCD_NAME}\"
-            export ANYRC_HOME=\"\${ANYRC_DANYRCD}\"
-            export SHELL=\$(which \"${REMOTE_SHELL}\")
-            export PATH=\"\${PATH}:\${ANYRC_ROOT}\"
-            trap \"rm -rf \${ANYRC_ROOT}; exit\" 0
-            source \"\${ANYRC_DANYRC}\"
-            [ \"${REMOTE_SHELL##*/}\" = 'bash' ] \
-              && bash --rcfile \${ANYRC_DANYRC} \
-              || ${REMOTE_SHELL}"; ;;
+      docker exec -it ${DOCKER_OPTS} "${DOCKER_CONTAINER}" \
+        "${REMOTE_SHELL}" -c "
+          export DANYRC_NAME=\"${DANYRC_NAME}\"
+          export DANYRCD_NAME=\"${DANYRCD_NAME}\"
+          export ANYRC_ROOT=\"${TMP_DIR}\"
+          export ANYRC_DANYRC=\"\${ANYRC_ROOT}/\${DANYRC_NAME}\"
+          export ANYRC_DANYRCD=\"\${ANYRC_ROOT}/\${DANYRCD_NAME}\"
+          export ANYRC_HOME=\"\${ANYRC_DANYRCD}\"
+          export SHELL=\$(which \"${REMOTE_SHELL}\")
+          export PATH=\"\${PATH}:\${ANYRC_ROOT}\"
+          trap \"rm -rf \${ANYRC_ROOT}; exit\" 0
+          source \"\${ANYRC_DANYRC}\"
+          [ \"${REMOTE_SHELL##*/}\" = 'bash' ] \
+            && bash --rcfile \${ANYRC_DANYRC} \
+            || ${REMOTE_SHELL}"; ;;
     * )
       docker ${DOCKER_OPTS}; ;;
   esac

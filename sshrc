@@ -16,7 +16,7 @@ init() {
         SSH_OPTS="${SSH_OPTS} $1" ;;
       * )
         if [ -z "${SSH_REMOTE:+_}" ]; then
-         SSH_REMOTE="$1"
+          SSH_REMOTE="$1"
         fi; ;;
     esac
     shift
@@ -46,15 +46,6 @@ connect() {
   fi
   local CMD_DIR="$(abs_dirname $0)"
   ${SSH_CMD} -t "${SSH_REMOTE}" ${SSH_OPTS} "\
-    if [ \$(which base64) ]; then
-      DECODE=('base64' '-d')
-    elif [ \$(which openssl) ]; then
-      DECODE=('openssl' 'enc' '-base64' '-d')
-    fi
-    if [ -z \"\${DECODE:+_}\" ]; then
-      echo 'sshrc requires base64 or openssl command' 1>&2
-      exit 1
-    fi
     export DANYRC_NAME=\"${DANYRC_NAME}\"
     export DANYRCD_NAME=\"${DANYRCD_NAME}\"
     export ANYRC_ROOT=\"\$(mktemp -d /tmp/anyrc.XXXXXX)\"
@@ -64,9 +55,9 @@ connect() {
     export PATH=\"\${ANYRC_ROOT}:\${PATH}\"
     trap \"rm -rf \${ANYRC_ROOT}; exit\" 0
     mkdir -p \${ANYRC_DANYRCD}
-    echo '"$(cat "${ANYRC_DANYRC}" | ${ENCODE[@]})"' | tr -s ' ' '\n' | \${DECODE[@]} > \${ANYRC_DANYRC}
-    echo '"$(tar czf - -h -C ${CMD_DIR} ${ANYRC_CMD} ${ANYRC_CMDS[@]} | ${ENCODE[@]})"' | tr -s ' ' $'\n' | \${DECODE[@]} | tar mxzf - -C \${ANYRC_ROOT}
-    echo '"$(tar czf - -h -C ${DANYRCD_DIR} ${DANYRCD_BASE} | ${ENCODE[@]})"' | tr -s ' ' '\n' | \${DECODE[@]} | tar mxzf - -C \${ANYRC_ROOT}
+    echo '"$(cat "${ANYRC_DANYRC}" | base64)"' | tr -s ' ' '\n' | base64 -d > \${ANYRC_DANYRC}
+    echo '"$(tar czf - -h -C ${CMD_DIR} ${ANYRC_CMD} ${ANYRC_CMDS[@]} | base64)"' | tr -s ' ' $'\n' | base64 -d | tar mxzf - -C \${ANYRC_ROOT}
+    echo '"$(tar czf - -h -C ${DANYRCD_DIR} ${DANYRCD_BASE} | base64)"' | tr -s ' ' '\n' | base64 -d | tar mxzf - -C \${ANYRC_ROOT}
     source \${ANYRC_DANYRC}
     [ \"\${SHELL##*/}\" = 'bash' ] \
       && bash --rcfile \${ANYRC_DANYRC} \
