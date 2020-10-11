@@ -18,7 +18,7 @@ init() {
             K8S_OPTS="${K8S_OPTS} $1" ;;
           * )
             if [ -z "${K8S_POD:+_}" ]; then
-             K8S_POD="$1"
+              K8S_POD="$1"
             elif [ -z ${REMOTE_SHELL:+_} ]; then
               REMOTE_SHELL="$1"
             fi; ;;
