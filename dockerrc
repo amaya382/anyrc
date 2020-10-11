@@ -104,15 +104,6 @@ transfer() {
 connect() {
   case "${DOCKER_SUBCMD}" in
     run )
-      if [ $(which base64) ]; then
-        ENCODE=('base64')
-      elif [ $(which openssl) ]; then
-        ENCODE=('openssl' 'enc' '-base64')
-      fi
-      if [ -z "${ENCODE:+_}" ]; then
-        echo 'dockerrc requires base64 or openssl command' 1>&2
-        exit 1
-      fi
       local CMD_DIR="$(abs_dirname $0)"
       docker run -it ${DOCKER_OPTS} "${DOCKER_IMAGE}" \
         "${REMOTE_SHELL}" -c "
