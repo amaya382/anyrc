@@ -91,9 +91,11 @@ connect() {
           export PATH=\"\${PATH}:\${ANYRC_ROOT}\"
           trap \"rm -rf \${ANYRC_ROOT}; exit\" 0
           source \"\${ANYRC_DANYRC}\"
-          [ \"${REMOTE_SHELL##*/}\" = 'bash' ] \
-            && bash --rcfile \${ANYRC_DANYRC} \
-            || ${REMOTE_SHELL}"; ;;
+          if [ \"${REMOTE_SHELL##*/}\" = 'bash' ]; then
+            bash --rcfile \${ANYRC_DANYRC};
+          else
+            ${REMOTE_SHELL};
+          fi"; ;;
     * )
       kubectl ${K8S_OPTS}; ;;
   esac

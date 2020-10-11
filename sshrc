@@ -50,9 +50,11 @@ connect() {
     echo '"$(tar czf - -h -C ${CMD_DIR} ${ANYRC_CMD} ${ANYRC_CMDS[@]} | base64)"' | tr -s ' ' $'\n' | base64 -d | tar mxzf - -C \${ANYRC_ROOT}
     echo '"$(tar czf - -h -C ${DANYRCD_DIR} ${DANYRCD_BASE} | base64)"' | tr -s ' ' '\n' | base64 -d | tar mxzf - -C \${ANYRC_ROOT}
     source \${ANYRC_DANYRC}
-    [ \"\${SHELL##*/}\" = 'bash' ] \
-      && bash --rcfile \${ANYRC_DANYRC} \
-      || \${SHELL}"
+    if [ \"\${SHELL##*/}\" = 'bash' ]; then
+      bash --rcfile \${ANYRC_DANYRC};
+    else
+      \${SHELL};
+    fi"
 }
 
 source anyrc
