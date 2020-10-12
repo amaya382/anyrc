@@ -3,89 +3,126 @@
 ANYRC_ENV='docker'
 
 init() {
-  DOCKER_SUBCMD="$1"; shift; # expect 'run' or 'exec'
-  DOCKER_OPTS=''
+  DOCKER_SUBCMD="$1"; shift # expect 'run' or 'exec'
+  DOCKER_GLOBAL_OPTS=''
+  DOCKER_RUN_OPTS=''
+  DOCKER_EXEC_OPTS=''
+  DOCKER_UNKNOWN_OPTS=''
 
   case "${DOCKER_SUBCMD}" in
     run )
       while [[ -n "$1" ]]; do
         case "$1" in
-          --add-host=* | -a=* | --attach=* | --blkio-weight=* | --blkio-weight-device=* | --cap-add=* | --cap-drop=* | --cgroup-parent=* | --cidfile=* | --cpu-period=* | --cpu-quota=* | --cpu-rt-period=* | --cpu-rt-runtime=* | -c=* | --cpu-shares=* | --cpus=* | --cpuset-cpus=* | --cpuset-mems=* | --detach-keys=* | --device=* | --device-cgroup-rule=* | --device-read-bps=* | --device-read-iops=* | --device-write-bps=* | --device-write-iops=* | --dns=* | --dns-option=* | --dns-search=* | --domainname=* | --entrypoint=* | -e=* | --env=* | --env-file=* | --expose=* | --gpus=* | -r=* | --group-add=* | --health-cmd=* | --health-interval=* | --health-retries=* | --health-start-period=* | -r=* | --health-timeout=* | -h=* | --hostname=* | --ip=* | --ip=* | --ipc=* | --isolation=* | --kernel-memory=* | -l=* | --label=* | --label-file=* | --link=* | --link-local-ip=* | -l=* | --log-driver=* | --log-opt=* | --mac-address=* | -m=* | --memory=* | --memory-reservation=* | --memory-swap=* | --memory-swappiness=* | --mount=* | --name=* | --network=* | --network-alias=* | -s=* | -s=* | --oom-score-adj=* | --pid=* | --pids-limit=* | --platform=* | -p=* | --privileged=* | -p=* | --publish=* | --restart=* | --runtime=* | --security-opt=* | --shm-size=* | --stop-signal=* | --stop-timeout=* | --storage-opt=* | --sysctl=* | --tmpfs=* | --ulimit=* | -u=* | --user=* | --userns=* | --uts=* | -v=* | --volume=* | --volume-driver=* | --volumes-from=* | -w=* | --workdir=* )
-            DOCKER_OPTS="${DOCKER_OPTS} $1"; ;;
-          --add-host | -a | --attach | --blkio-weight | --blkio-weight-device | --cap-add | --cap-drop | --cgroup-parent | --cidfile | --cpu-period | --cpu-quota | --cpu-rt-period | --cpu-rt-runtime | -c | --cpu-shares | --cpus | --cpuset-cpus | --cpuset-mems | --detach-keys | --device | --device-cgroup-rule | --device-read-bps | --device-read-iops | --device-write-bps | --device-write-iops | --dns | --dns-option | --dns-search | --domainname | --entrypoint | -e | --env | --env-file | --expose | --gpus | -r | --group-add | --health-cmd | --health-interval | --health-retries | --health-start-period | -r | --health-timeout | -h | --hostname | --ip | --ip | --ipc | --isolation | --kernel-memory | -l | --label | --label-file | --link | --link-local-ip | -l | --log-driver | --log-opt | --mac-address | -m | --memory | --memory-reservation | --memory-swap | --memory-swappiness | --mount | --name | --network | --network-alias | -s | -s | --oom-score-adj | --pid | --pids-limit | --platform | -p | --privileged | -p | --publish | --restart | --runtime | --security-opt | --shm-size | --stop-signal | --stop-timeout | --storage-opt | --sysctl | --tmpfs | --ulimit | -u | --user | --userns | --uts | -v | --volume | --volume-driver | --volumes-from | -w | --workdir )
-            DOCKER_OPTS="${DOCKER_OPTS} $1 $2"; shift ;;
+          --help )
+            docker "${DOCKER_SUBCMD}" "$1"
+            exit 0 ;;
+
+          -D | --debug | --tls | --tlsverify )
+            DOCKER_GLOBAL_OPTS="${DOCKER_GLOBAL_OPTS} $1" ;;
+          --config | -c | --context | -H | --host | -l | --log-level | --tlscacert | --tlscert | --tlskey )
+            DOCKER_GLOBAL_OPTS="${DOCKER_GLOBAL_OPTS} $1 $2"; shift ;;
+          --config=* | -c=* | --context=* | -H=* | --host=* | -l=* | --log-level=* | --tlscacert=* | --tlscert=* | --tlskey=* )
+            DOCKER_GLOBAL_OPTS="${DOCKER_GLOBAL_OPTS} $1" ;;
+
+          -d | --detach | --disable-content-trust | --init | -i | --interactive | --no-healthcheck | --oom-kill-disable | --privileged | -P | --publish-all | --read-only | --rm | --sig-proxy | -t | --tty | -it | -ti )
+            DOCKER_RUN_OPTS="${DOCKER_RUN_OPTS} $1" ;;
+          --add-host | -a | --attach | --blkio-weight-device | --cap-add | --cap-drop | --cgroup-parent | --cidfile | --cpu-period | --cpu-quota | --cpu-rt-period | --cpu-rt-runtime | -c | --cpu-shares | --cpus | --cpuset-cpus | --cpuset-mems | --detach-keys | --device | --device-cgroup-rule | --device-read-bps | --device-read-iops | --device-write-bps | --device-write-iops | --dns | --dns-option | --dns-search | --domainname | --entrypoint | -e | --env | --env-file | --expose | --group-add | --health-cmd | --health-interval | --health-retries | --health-start-period | --health-timeout | -h | --hostname | --ip | --ip6 | --ipc | --isolation | --kernel-memory | -l | --label | --label-file | --link | --link-local-ip | --log-driver | --log-opt | --mac-address | -m | --memory | --memory-reservation | --memory-swap | --memory-swappiness | --mount | --name | --network | --network-alias | --oom-score-adj | --pid | --pids-limit | --platform | -p | --publish | --restart | --runtime | --security-opt | --shm-size | --stop-signal | --stop-timeout | --storage-opt | --sysctl | --tmpfs | --ulimit | -u | --user | --userns | --uts | -v | --volume | --volume-driver | --volumes-from | -w | --workdir )
+            DOCKER_RUN_OPTS="${DOCKER_RUN_OPTS} $1 $2"; shift ;;
+          --add-host=* | -a=* | --attach=* | --blkio-weight-device=* | --cap-add=* | --cap-drop=* | --cgroup-parent=* | --cidfile=* | --cpu-period=* | --cpu-quota=* | --cpu-rt-period=* | --cpu-rt-runtime=* | -c=* | --cpu-shares=* | --cpus=* | --cpuset-cpus=* | --cpuset-mems=* | --detach-keys=* | --device=* | --device-cgroup-rule=* | --device-read-bps=* | --device-read-iops=* | --device-write-bps=* | --device-write-iops=* | --dns=* | --dns-option=* | --dns-search=* | --domainname=* | --entrypoint=* | -e=* | --env=* | --env-file=* | --expose=* | --group-add=* | --health-cmd=* | --health-interval=* | --health-retries=* | --health-start-period=* | --health-timeout=* | -h=* | --hostname=* | --ip=* | --ip6=* | --ipc=* | --isolation=* | --kernel-memory=* | -l=* | --label=* | --label-file=* | --link=* | --link-local-ip=* | --log-driver=* | --log-opt=* | --mac-address=* | -m=* | --memory=* | --memory-reservation=* | --memory-swap=* | --memory-swappiness=* | --mount=* | --name=* | --network=* | --network-alias=* | --oom-score-adj=* | --pid=* | --pids-limit=* | --platform=* | -p=* | --publish=* | --restart=* | --runtime=* | --security-opt=* | --shm-size=* | --stop-signal=* | --stop-timeout=* | --storage-opt=* | --sysctl=* | --tmpfs=* | --ulimit=* | -u=* | --user=* | --userns=* | --uts=* | -v=* | --volume=* | --volume-driver=* | --volumes-from=* | -w=* | --workdir )
+            DOCKER_RUN_OPTS="${DOCKER_RUN_OPTS} $1" ;;
+
           -* )
-            DOCKER_OPTS="${DOCKER_OPTS} $1"; ;;
+            # handle unknown opts as solo opts
+            DOCKER_UNKNOWN_OPTS="${DOCKER_UNKNOWN_OPTS} $1" ;;
           * )
             if [ -z "${DOCKER_IMAGE:+_}" ]; then
               DOCKER_IMAGE="$1"
             elif [ -z "${REMOTE_SHELL:+_}" ]; then
               REMOTE_SHELL="$1"
-            fi; ;;
+            fi ;;
         esac
         shift
       done
       if [ -z "${DOCKER_IMAGE:+_}" ] || [ -z "${REMOTE_SHELL:+_}" ]; then
         exit 1
-      fi; ;;
+      fi ;;
     exec )
       while [[ -n "$1" ]]; do
         case "$1" in
-          -e=* | --env=* | -u=* | --user=* | -w=* | --workdir=* )
-            DOCKER_OPTS="${DOCKER_OPTS} $1"; ;;
-          -e | --env | -u | --user | -w | --workdir )
-            DOCKER_OPTS="${DOCKER_OPTS} $1 $2"; shift ;;
+          --help )
+            docker "${DOCKER_SUBCMD}" "$1"
+            exit 0 ;;
+
+          -D | --debug | --tls | --tlsverify )
+            DOCKER_GLOBAL_OPTS="${DOCKER_GLOBAL_OPTS} $1" ;;
+          --config | -c | --context | -H | --host | -l | --log-level | --tlscacert | --tlscert | --tlskey )
+            DOCKER_GLOBAL_OPTS="${DOCKER_GLOBAL_OPTS} $1 $2"
+            shift ;;
+          --config=* | -c=* | --context=* | -H=* | --host=* | -l=* | --log-level=* | --tlscacert=* | --tlscert=* | --tlskey=* )
+            DOCKER_GLOBAL_OPTS="${DOCKER_GLOBAL_OPTS} $1" ;;
+
+          -d | --detach | -i | --interactive | --privileged | -t | --tty | -it | -ti )
+            DOCKER_EXEC_OPTS="${DOCKER_EXEC_OPTS} $1" ;;
+          --detach-keys | -e | --env | -u | --user | -w | --workdir )
+            DOCKER_EXEC_OPTS="${DOCKER_EXEC_OPTS} $1 $2"
+            shift ;;
+          --detach-keys=* | -e=* | --env=* | -u=* | --user=* | -w=* | --workdir=* )
+            DOCKER_EXEC_OPTS="${DOCKER_EXEC_OPTS} $1" ;;
+
           -* )
-            DOCKER_OPTS="${DOCKER_OPTS} $1"; ;;
+            # handle unknown opts as solo opts
+            DOCKER_UNKNOWN_OPTS="${DOCKER_UNKNOWN_OPTS} $1" ;;
           * )
             if [ -z "${DOCKER_CONTAINER:+_}" ]; then
               DOCKER_CONTAINER="$1"
             elif [ -z "${REMOTE_SHELL:+_}" ]; then
               REMOTE_SHELL="$1"
-            fi; ;;
+            fi ;;
         esac
         shift
       done
       if [ -z "${DOCKER_CONTAINER:+_}" ] || [ -z "${REMOTE_SHELL:+_}" ]; then
         exit 1
-      fi; ;;
+      fi ;;
     * )
-      DOCKER_OPTS="${DOCKER_SUBCMD} $@"; ;;
+      # pass through and then exit
+      docker "${DOCKER_SUBCMD}" $@
+      exit 0 ;;
   esac
 }
 
 mk_tmp_dir() {
   case "${DOCKER_SUBCMD}" in
     run )
-      :; ;;
+      : ;;
     exec )
-      TMP_DIR="$(docker exec ${DOCKER_OPTS} ${DOCKER_CONTAINER} mktemp -d /tmp/anyrc.XXXXXX)"; ;;
+      TMP_DIR="$(docker exec ${DOCKER_GLOBAL_OPTS} ${DOCKER_CONTAINER} mktemp -d /tmp/anyrc.XXXXXX)"; ;;
   esac
 }
 
 transfer() {
   case "${DOCKER_SUBCMD}" in
     run )
-      :; ;;
+      : ;;
     exec )
       # Transfer .anyrc
-      docker cp -L "${ANYRC_DANYRC}" "${DOCKER_CONTAINER}:${TMP_DIR}/${DANYRC_NAME}"
+      docker cp -L ${DOCKER_GLOBAL_OPTS} "${ANYRC_DANYRC}" "${DOCKER_CONTAINER}:${TMP_DIR}/${DANYRC_NAME}"
 
       if [ ! -z "${ANYRC_DOCKER_WO_TAR:+_}" ] || [ ! -z "${ANYRC_WO_TAR:+_}" ]; then
         # Transfer .anyrc.d
-        docker cp -L "${ANYRC_DANYRCD}" "${DOCKER_CONTAINER}:${TMP_DIR}/${DANYRCD_NAME}"
+        docker cp -L ${DOCKER_GLOBAL_OPTS} "${ANYRC_DANYRCD}" "${DOCKER_CONTAINER}:${TMP_DIR}/${DANYRCD_NAME}"
 
         # Transfer *rc
         local CMD_DIR="$(abs_dirname $0)"
         for cmd in "${ANYRC_CMD}" "${ANYRC_CMDS[@]}"; do
           if [ -f "${CMD_DIR}/${cmd}" ]; then
-            docker cp -L "${CMD_DIR}/${cmd}" "${DOCKER_CONTAINER}:${TMP_DIR}/${cmd}"
+            docker cp -L ${DOCKER_GLOBAL_OPTS} "${CMD_DIR}/${cmd}" "${DOCKER_CONTAINER}:${TMP_DIR}/${cmd}"
           fi
         done
       else
         # Transfer .anyrc.d
         tar cz -h -C "${DANYRCD_DIR}" "${DANYRCD_BASE}" \
-        | docker exec -i ${DOCKER_OPTS} ${DOCKER_CONTAINER} sh -c "tar xz -C ${TMP_DIR}"
+        | docker exec -i ${DOCKER_GLOBAL_OPTS} ${DOCKER_CONTAINER} sh -c "tar xz -C ${TMP_DIR}"
 
         # Transfer *rc
         local CMD_DIR="$(abs_dirname $0)"
@@ -96,8 +133,8 @@ transfer() {
           fi
         done
         tar czf - -h -C ${CMD_DIR} "${RCS[@]}" \
-        | docker exec -i ${DOCKER_OPTS} "${DOCKER_CONTAINER}" sh -c "tar xz -C ${TMP_DIR}"
-      fi; ;;
+        | docker exec -i ${DOCKER_GLOBAL_OPTS} "${DOCKER_CONTAINER}" sh -c "tar xz -C ${TMP_DIR}"
+      fi ;;
   esac
 }
 
@@ -105,7 +142,7 @@ connect() {
   case "${DOCKER_SUBCMD}" in
     run )
       local CMD_DIR="$(abs_dirname $0)"
-      docker run -it ${DOCKER_OPTS} "${DOCKER_IMAGE}" \
+      docker run ${DOCKER_GLOBAL_OPTS} ${DOCKER_RUN_OPTS} "${DOCKER_IMAGE}" \
         "${REMOTE_SHELL}" -c "
           export DANYRC_NAME=\"${DANYRC_NAME}\"
           export DANYRCD_NAME=\"${DANYRCD_NAME}\"
@@ -121,12 +158,12 @@ connect() {
           echo '$(tar czf - -h -C ${DANYRCD_DIR} ${DANYRCD_BASE} | base64)' | base64 -d | tar mxzf - -C \${ANYRC_ROOT}
           source \"\${ANYRC_DANYRC}\"
           if [ \"${REMOTE_SHELL##*/}\" = 'bash' ]; then
-            bash --rcfile \${ANYRC_DANYRC};
+            bash --rcfile \${ANYRC_DANYRC}
           else
-            ${REMOTE_SHELL};
-          fi"; ;;
+            ${REMOTE_SHELL}
+          fi" ;;
     exec )
-      docker exec -it ${DOCKER_OPTS} "${DOCKER_CONTAINER}" \
+      docker exec ${DOCKER_GLOBAL_OPTS} ${DOCKER_EXEC_OPTS} "${DOCKER_CONTAINER}" \
         "${REMOTE_SHELL}" -c "
           export DANYRC_NAME=\"${DANYRC_NAME}\"
           export DANYRCD_NAME=\"${DANYRCD_NAME}\"
@@ -139,12 +176,10 @@ connect() {
           trap \"rm -rf \${ANYRC_ROOT}; exit\" 0
           source \"\${ANYRC_DANYRC}\"
           if [ \"${REMOTE_SHELL##*/}\" = 'bash' ]; then
-            bash --rcfile \${ANYRC_DANYRC};
+            bash --rcfile \${ANYRC_DANYRC}
           else
-            ${REMOTE_SHELL};
-          fi"; ;;
-    * )
-      docker ${DOCKER_OPTS}; ;;
+            ${REMOTE_SHELL}
+          fi" ;;
   esac
 }
 
