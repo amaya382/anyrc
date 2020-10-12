@@ -10,12 +10,12 @@ Just use `*rc` commands instead of original commands
   * e.g., `sshrc -p 10022 foo@XXX.XXX.XXX.XXX`
 * `surc xxx` instead of `su xxx`
   * e.g., `surc foo`
-* `dockerrc exec xxx` instead of `docker exec xxx`
-  * e.g., `dockerrc exec foo_running_container bash`
-* `dockerrc run xxx` instead of `docker run -it xxx`
-  * e.g., `dockerrc run foo_image bash`
-* `kubectlrc exec xxx` instead of `kubectl exec xxx`
-  * e.g., `kubectlrc exec foo_running_pod zsh`
+* `dockerrc exec -it xxx` instead of `docker exec -it xxx`
+  * e.g., `dockerrc exec -it foo_running_container bash`
+* `dockerrc run -it xxx` instead of `docker run -it xxx`
+  * e.g., `dockerrc run -it foo_image bash`
+* `kubectlrc exec -it xxx` instead of `kubectl exec -it xxx`
+  * e.g., `kubectlrc exec -it foo_running_pod -- zsh`
 
 **Note**: Incompatible subcommands (e.g., `ps` for `dockerrc`) will be passed to the original command (i.e., `docker ps` will be executed).
 

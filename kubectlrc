@@ -3,40 +3,72 @@
 ANYRC_ENV='kubectlrc'
 
 init() {
-  K8S_SUBCMD="$1"; shift; # expect 'exec'
-  K8S_OPTS=''
+  K8S_SUBCMD="$1"; shift # expect 'exec'
+  K8S_GLOBAL_OPTS=''
+  K8S_CONTAINER_OPTS=''
+  K8S_EXEC_OPTS=''
+  K8S_UNKNOWN_OPTS=''
 
   case "${K8S_SUBCMD}" in
     exec )
       while [[ -n "$1" ]]; do
         case "$1" in
-          -c=* )
-            K8S_OPTS="${K8S_OPTS} $1" ;;
-          -c )
-            K8S_OPTS="${K8S_OPTS} $1 $2"; shift ;;
+          --help )
+            kubectl "${K8S_SUBCMD}" "$1"
+            exit 0 ;;
+
+          --add-dir-header | --alsologtostderr | --insecure-skip-tls-verify | --logtostderr | --match-server-version | --skip-headers | --skip-log-header )
+            K8S_GLOBAL_OPTS="${K8S_GLOBAL_OPTS} $1" ;;
+          --add-dir-header=* | --alsologtostderr=* | --insecure-skip-tls-verify=* | --logtostderr=* | --match-server-version=* | --skip-headers=* | --skip-log-header )
+            K8S_GLOBAL_OPTS="${K8S_GLOBAL_OPTS} $1" ;;
+          --as | --as-group | --cache-dir | --certificate-authority | --client-certificate | --client-key | --cluster | --context | --kubeconfig | --log-backtrace-at | --log-dir | --log-file | --log-file-max-size | --log-flush-frequency | -n | --namespace | --password | --profile | --profile-output | --request-timeout | -s | --server | --stderrthreshold | --tls-server-name | --token | --user | --username | -v | --v | --vmodule )
+            K8S_GLOBAL_OPTS="${K8S_GLOBAL_OPTS} $1 $2"
+            shift ;;
+          --as=* | --as-group=* | --cache-dir=* | --certificate-authority=* | --client-certificate=* | --client-key=* | --cluster=* | --context=* | --kubeconfig=* | --log-backtrace-at=* | --log-dir=* | --log-file=* | --log-file-max-size=* | --log-flush-frequency=* | -n=* | --namespace=* | --password=* | --profile=* | --profile-output=* | --request-timeout=* | -s=* | --server=* | --stderrthreshold=* | --tls-server-name=* | --token=* | --user=* | --username=* | -v=* | --v=* | --vmodule )
+            K8S_GLOBAL_OPTS="${K8S_GLOBAL_OPTS} $1" ;;
+          
+          -c | --container )
+            K8S_CONTAINER_OPTS="${K8S_CONTAINER_OPTS} $1 $2"
+            K8S_EXEC_OPTS="${K8S_EXEC_OPTS} $1 $2"
+            shift ;;
+          -c=* | --container=* )
+            K8S_CONTAINER_OPTS="${K8S_CONTAINER_OPTS} $1"
+            K8S_EXEC_OPTS="${K8S_EXEC_OPTS} $1" ;;
+
+          -i | -t | -it | -ti )
+            K8S_EXEC_OPTS="${K8S_EXEC_OPTS} $1" ;;
+          -f | --filename | --pod-running-timeout )
+            K8S_EXEC_OPTS="${K8S_EXEC_OPTS} $1 $2"
+            shift ;;
+          -f=* | --filename=* | --pod-running-timeout=* )
+            K8S_EXEC_OPTS="${K8S_EXEC_OPTS} $1" ;;
+
+          -- )
+            ;;
           -* )
-            K8S_OPTS="${K8S_OPTS} $1" ;;
+            K8S_UNKNOWN_OPTS="${K8S_UNKNOWN_OPTS} $1" ;;
           * )
             if [ -z "${K8S_POD:+_}" ]; then
               K8S_POD="$1"
             elif [ -z ${REMOTE_SHELL:+_} ]; then
               REMOTE_SHELL="$1"
-            fi; ;;
+            fi ;;
         esac
         shift
       done
       if [ -z "${K8S_POD:+_}" ] || [ -z "${REMOTE_SHELL:+_}" ]; then
         exit 1
-      fi; ;;
+      fi ;;
   * )
-    K8S_OPTS="${K8S_SUBCMD} $@"; ;;
+    kubectl "${K8S_SUBCMD}" $@
+    exit 0 ;;
   esac
 }
 
 mk_tmp_dir() {
   case "${K8S_SUBCMD}" in
     exec )
-      TMP_DIR="$(kubectl exec ${K8S_OPTS} ${K8S_POD} -- mktemp -d /tmp/anyrc.XXXXXX)"; ;;
+      TMP_DIR="$(kubectl exec ${K8S_GLOBAL_OPTS} ${K8S_CONTAINER_OPTS} ${K8S_POD} -- mktemp -d /tmp/anyrc.XXXXXX)" ;;
   esac
 }
 
@@ -44,23 +76,23 @@ transfer() {
   case "${K8S_SUBCMD}" in
     exec )
       # Transfer .anyrc
-      kubectl cp "$(readlink -f ${ANYRC_DANYRC})" "${K8S_POD}:${TMP_DIR}/${DANYRC_NAME}"
+      kubectl cp ${K8S_GLOBAL_OPTS} ${K8S_CONTAINER_OPTS} "$(readlink -f ${ANYRC_DANYRC})" "${K8S_POD}:${TMP_DIR}/${DANYRC_NAME}"
 
       if [ ! -z "${ANYRC_K8S_WO_TAR:+_}" ] || [ ! -z "${ANYRC_WO_TAR:+_}" ]; then
         # Transfer .anyrc.d
-        kubectl cp "$(readlink -f ${ANYRC_DANYRCD})" "${K8S_POD}:${TMP_DIR}/${DANYRCD_NAME}"
+        kubectl cp ${K8S_GLOBAL_OPTS} ${K8S_CONTAINER_OPTS} "$(readlink -f ${ANYRC_DANYRCD})" "${K8S_POD}:${TMP_DIR}/${DANYRCD_NAME}"
 
         # Transfer *rc
         local CMD_DIR="$(abs_dirname $0)"
         for cmd in "${ANYRC_CMD}" "${ANYRC_CMDS[@]}"; do
           if [ -f "${CMD_DIR}/${cmd}" ]; then
-            kubectl cp "$(readlink -f ${CMD_DIR}/${cmd})" "${K8S_POD}:${TMP_DIR}/${cmd}"
+            kubectl cp ${K8S_GLOBAL_OPTS} ${K8S_CONTAINER_OPTS} "$(readlink -f ${CMD_DIR}/${cmd})" "${K8S_POD}:${TMP_DIR}/${cmd}"
           fi
         done
       else
         # Transfer .anyrc.d
         tar cz -h -C "${DANYRCD_DIR}" "${DANYRCD_BASE}" \
-        | kubectl exec -i ${K8S_OPTS} ${K8S_POD} -- tar xz -C "${TMP_DIR}"
+        | kubectl exec -i ${K8S_GLOBAL_OPTS} ${K8S_CONTAINER_OPTS} ${K8S_POD} -- tar xz -C "${TMP_DIR}"
 
         # Transfer *rc
         local CMD_DIR=$(abs_dirname $0)
@@ -71,15 +103,15 @@ transfer() {
           fi
         done
         tar czf - -h -C ${CMD_DIR} "${RCS[@]}" \
-        | kubectl exec -i ${K8S_OPTS} "${K8S_POD}" -- tar xz -C "${TMP_DIR}"
-      fi; ;;
+        | kubectl exec -i ${K8S_GLOBAL_OPTS} ${K8S_CONTAINER_OPTS} "${K8S_POD}" -- tar xz -C "${TMP_DIR}"
+      fi ;;
   esac
 }
 
 connect() {
   case "${K8S_SUBCMD}" in
     exec )
-      kubectl exec -it ${K8S_OPTS} "${K8S_POD}" \
+      kubectl exec ${K8S_GLOBAL_OPTS} ${K8S_CONTAINER_OPTS} ${K8S_EXEC_OPTS} "${K8S_POD}" \
         -- "${REMOTE_SHELL}" -c "
           export DANYRC_NAME=\"${DANYRC_NAME}\"
           export DANYRCD_NAME=\"${DANYRCD_NAME}\"
@@ -92,12 +124,10 @@ connect() {
           trap \"rm -rf \${ANYRC_ROOT}; exit\" 0
           source \"\${ANYRC_DANYRC}\"
           if [ \"${REMOTE_SHELL##*/}\" = 'bash' ]; then
-            bash --rcfile \${ANYRC_DANYRC};
+            bash --rcfile \${ANYRC_DANYRC}
           else
-            ${REMOTE_SHELL};
-          fi"; ;;
-    * )
-      kubectl ${K8S_OPTS}; ;;
+            ${REMOTE_SHELL}
+          fi" ;;
   esac
 }
 
