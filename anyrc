@@ -7,7 +7,7 @@ DANYRCD_NAME='.anyrc.d'
 ANYRC_CMD='anyrc'
 ANYRC_CMD_SSH='sshrc'
 ANYRC_CMD_DOCKER='dockerrc'
-ANYRC_CMD_KUBECTLC='kubectlrc'
+ANYRC_CMD_KUBECTL='kubectlrc'
 ANYRC_CMD_SU='surc'
 
 ANYRC_CMDS=( \
